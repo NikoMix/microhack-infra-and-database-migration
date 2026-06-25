@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  markdown-prose:
+    name: Markdown & prose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: markdownlint
+        run: npx --yes markdownlint-cli2 "**/*.md" "**/*.mdx"
+      - name: Vale prose lint
+        uses: errata-ai/vale-action@reviewdog
+        with:
+          fail_on_error: true
+          version: 3.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  yaml-actions:
+    name: YAML & Actions lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: yamllint
+        run: pipx run yamllint .
+      - name: actionlint
+        uses: raven-actions/actionlint@v2
+
+  docs-build:
+    name: Docs site build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect site
+        id: detect
+        run: |
+          if [ -f docs-site/package.json ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.exists == 'true'
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Install, lint & build
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: docs-site
+        run: |
+          npm ci
+          npm run lint --if-present
+          npm run build
+
+  python:
+    name: Python lint, type & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect package
+        id: detect
+        run: |
+          if [ -f src/pyproject.toml ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.detect.outputs.exists == 'true'
+        with:
+          python-version: '3.12'
+      - name: Install
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: src
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Ruff
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: src
+        run: ruff check .
+      - name: Mypy
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: src
+        run: mypy .
+      - name: Pytest
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: src
+        run: pytest -q
+      - name: pip-audit
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: src
+        run: pipx run pip-audit -l || true
+
+  bicep:
+    name: Bicep build & lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect bicep
+        id: detect
+        run: |
+          if [ -f infra/bicep/main.bicep ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install Bicep
+        if: steps.detect.outputs.exists == 'true'
+        run: az bicep install
+      - name: Build all Bicep
+        if: steps.detect.outputs.exists == 'true'
+        run: |
+          set -e
+          find infra/bicep -name '*.bicep' -print0 | while IFS= read -r -d '' f; do
+            echo "Building $f"
+            az bicep build --file "$f" --stdout > /dev/null
+          done

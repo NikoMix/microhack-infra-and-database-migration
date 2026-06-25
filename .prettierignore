@@ -1,0 +1,9 @@
+node_modules/
+**/node_modules/
+docs-site/dist/
+docs-site/.astro/
+**/*.bicep
+**/*.dtsx
+.venv/
+agent-output/
+package-lock.json

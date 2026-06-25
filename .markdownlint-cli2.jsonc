@@ -1,0 +1,25 @@
+// Configuration for markdownlint-cli2 — https://github.com/DavidAnson/markdownlint-cli2
+{
+  "config": {
+    "default": true,
+    // Allow inline HTML (used for badges/centering in README and MDX components)
+    "MD033": false,
+    // Line length is handled by prose tooling, not a hard limit for docs
+    "MD013": false,
+    // First line in file need not be a top-level heading (MDX frontmatter)
+    "MD041": false,
+    // Allow duplicate headings in different sibling sections
+    "MD024": { "siblings_only": true },
+    // Ordered list numbering style is not enforced
+    "MD029": false
+  },
+  "globs": ["**/*.md", "**/*.mdx"],
+  "ignores": [
+    "node_modules",
+    "**/node_modules",
+    "docs-site/dist",
+    ".github/agents/**",
+    ".github/skills/**",
+    "**/CHANGELOG.md"
+  ]
+}

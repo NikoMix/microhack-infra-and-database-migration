@@ -1,0 +1,35 @@
+name: Challenge feedback
+description: Report an issue or improvement for a microhack challenge or trainer material
+title: '[challenge] '
+labels: [microhack]
+body:
+  - type: dropdown
+    id: challenge
+    attributes:
+      label: Which challenge / material?
+      options:
+        - Ch00 Setup & Source Estate
+        - Ch01 Discovery & Assessment
+        - Ch02 Landing Zone (Agentic IaC)
+        - Ch03 IaaS Rehost
+        - Ch04 Azure SQL Family
+        - Ch05 OSS DB PaaS
+        - Ch06 Cutover, Evidence & Hypercare
+        - Trainer / facilitator material
+        - Slides
+        - AI agents / Copilot / MCP
+        - Infrastructure / Bicep
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened / what should change?
+      description: Describe the issue, with steps and expected vs actual where relevant.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment (region, browser, tool versions) — optional
