@@ -1,0 +1,13 @@
+using './main.bicep'
+
+param prefix = 'ttmh'
+param location = 'swedencentral'
+param suffix = '<unique-six-character-suffix>'
+param platformResourceGroupName = 'rg-ttmh-platform'
+param aadAdminObjectId = '<entra-object-id-for-azure-sql-admin>'
+param aadAdminLogin = '<display-name-or-upn>'
+param aadAdminPrincipalType = 'User'
+param postgresqlAdminUsername = 'ttmhpgadmin'
+param postgresqlAdminPassword = '<use-key-vault-reference-or-secure-cli-parameter>'
+param mysqlAdminUsername = 'ttmhmysqladmin'
+param mysqlAdminPassword = '<use-key-vault-reference-or-secure-cli-parameter>'

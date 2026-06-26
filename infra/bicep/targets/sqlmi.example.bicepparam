@@ -1,0 +1,11 @@
+using './sqlmi.bicep'
+
+param prefix = 'ttmh'
+param location = 'swedencentral'
+param suffix = '<unique-six-character-suffix>'
+param platformResourceGroupName = 'rg-ttmh-platform'
+param administratorLogin = 'ttmhsqlmiadmin'
+param administratorLoginPassword = '<use-key-vault-reference-or-secure-cli-parameter>'
+param aadAdminObjectId = '<optional-entra-object-id-or-empty>'
+param aadAdminLogin = '<optional-display-name-or-upn>'
+param aadAdminPrincipalType = 'User'

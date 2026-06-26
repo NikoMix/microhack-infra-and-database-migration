@@ -1,0 +1,10 @@
+using './main.bicep'
+
+param prefix = 'ttmh'
+param location = 'swedencentral'
+param adminUsername = 'ttmhadmin'
+param adminPassword = '<use-key-vault-reference-or-secure-cli-parameter>'
+param adminSourceAddressPrefix = '<your-public-ip>/32'
+param workloadRawBaseUrl = 'https://raw.githubusercontent.com/<owner>/<repo>/<branch>'
+param autoShutdownTime = '1900'
+param autoShutdownTimeZoneId = 'UTC'
