@@ -17,6 +17,11 @@
   "ignores": [
     "node_modules",
     "**/node_modules",
+    "**/.venv",
+    "**/.astro",
+    "**/dist",
+    ".vale/styles/**",
+    "agent-output",
     "docs-site/dist",
     ".github/agents/**",
     ".github/skills/**",

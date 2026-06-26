@@ -15,7 +15,7 @@ reusable training asset — improvements from every delivery are welcome.
 ## Local quality gates
 
 | Area | Command |
-|---|---|
+| --- | --- |
 | Docs site build | `cd docs-site && npm ci && npm run build` |
 | Markdown lint | `npx markdownlint-cli2 "**/*.md" "**/*.mdx"` |
 | Prose lint | `vale .` |

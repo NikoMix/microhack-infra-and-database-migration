@@ -64,6 +64,7 @@ jobs:
           npm ci
           npm run lint --if-present
           npm run build
+          npm audit --audit-level=moderate
 
   python:
     name: Python lint, type & test
@@ -103,7 +104,9 @@ jobs:
       - name: pip-audit
         if: steps.detect.outputs.exists == 'true'
         working-directory: src
-        run: pipx run pip-audit -l || true
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit
 
   bicep:
     name: Bicep build & lint

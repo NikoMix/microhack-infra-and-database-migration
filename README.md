@@ -3,7 +3,7 @@
 
 # 🚀 Migrate &amp; Modernize to Azure — MicroHack
 
-### A 1-day, classroom-led **Train-the-Trainer** hands-on lab covering every **Module B** requirement of the *Infrastructure &amp; Database Migration to Microsoft Azure* Advanced Specialization — accelerated by **GitHub Copilot agents, skills &amp; MCP servers**.
+A 1-day, classroom-led **Train-the-Trainer** hands-on lab covering every **Module B** requirement of the *Infrastructure &amp; Database Migration to Microsoft Azure* Advanced Specialization — accelerated by **GitHub Copilot agents, skills &amp; MCP servers**.
 
 [![Deploy Docs](https://github.com/NikoMix/microhack-infra-and-database-migration/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/NikoMix/microhack-infra-and-database-migration/actions/workflows/deploy-pages.yml)
 [![CI](https://github.com/NikoMix/microhack-infra-and-database-migration/actions/workflows/ci.yml/badge.svg)](https://github.com/NikoMix/microhack-infra-and-database-migration/actions/workflows/ci.yml)
@@ -28,7 +28,7 @@ guide (timing, talk track, common pitfalls, solution key).
 ## 🧭 Module B coverage
 
 | Control | Where |
-|---|---|
+| --- | --- |
 | **B.1.1** Migration Delivery Capability | Challenges 01–05 (rehost + replatform + refactor) |
 | **B.2.1 / B.2.2** ACR Performance &amp; Customer Diversity | Challenge 06 + slides |
 | **B.3.1** Certifications (AZ-104 / AZ-305 / DP-300 / AZ-800-801) | Closing block |
@@ -37,7 +37,7 @@ guide (timing, talk track, common pitfalls, solution key).
 ## 🗺️ The day at a glance
 
 | # | Challenge | Pillar / Control |
-|---|---|---|
+| --- | --- | --- |
 | 00 | Setup &amp; Source Estate | B.1.1 |
 | 01 | Discovery &amp; Assessment (Azure Migrate + AI Engagement Copilot) | B.1.1 |
 | 02 | Landing Zone via **agentic IaC** (Bicep AVM) | B.1.1 |
@@ -83,7 +83,7 @@ workloads/    Sample SQL Server / PostgreSQL / MySQL workloads (+ SSIS + Agent j
 ## ✅ Requirements
 
 - A **GitHub account** (Codespaces + Copilot) and an **Azure subscription** with Owner rights.
-- Ability to provision in a region that supports Azure AI Foundry models (e.g. **Sweden Central**).
+- Ability to provision in a region that supports Azure AI Foundry models (for example, **Sweden Central**).
 - Familiarity with Azure fundamentals; programming experience is helpful but not required.
 
 > 💸 **Cost-aware:** labs use low-cost SKUs, auto-shutdown, and ship **teardown scripts**. Estimated

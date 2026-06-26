@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Run the full local quality suite. Skips areas whose source is not present yet.
+# Run the full local quality suite (parity with .github/workflows/ci.yml).
+# Skips areas whose source is not present yet. Enforces zero known vulnerabilities.
 set -uo pipefail
 fail=0
 run() { echo ""; echo "==> $1"; shift; "$@" || { echo "   FAILED"; fail=1; }; }
@@ -14,17 +15,23 @@ if command -v vale >/dev/null 2>&1; then
 fi
 
 if [ -f docs-site/package.json ]; then
-  ( cd docs-site && npm ci && npm run build )
-  [ $? -eq 0 ] || fail=1
+  run "docs-site: npm ci"    bash -c 'cd docs-site && npm ci'
+  run "docs-site: build"     bash -c 'cd docs-site && npm run build'
+  # Enforce the zero-known-vulnerabilities requirement (moderate and above).
+  run "docs-site: npm audit" bash -c 'cd docs-site && npm audit --audit-level=moderate'
 fi
 
 if [ -f src/pyproject.toml ]; then
-  ( cd src && pip install -e ".[dev]" >/dev/null && ruff check . && mypy . && pytest -q )
-  [ $? -eq 0 ] || fail=1
+  PY="python"; command -v python >/dev/null 2>&1 || PY="python3"
+  run "python: install"   bash -c "cd src && $PY -m pip install -e '.[dev]' >/dev/null"
+  run "python: ruff"      bash -c "cd src && $PY -m ruff check ."
+  run "python: mypy"      bash -c "cd src && $PY -m mypy ."
+  run "python: pytest"    bash -c "cd src && $PY -m pytest -q"
+  run "python: pip-audit" bash -c "cd src && $PY -m pip install pip-audit >/dev/null && $PY -m pip_audit"
 fi
 
 if [ -f infra/bicep/main.bicep ]; then
-  run "bicep build" az bicep build --file infra/bicep/main.bicep --stdout
+  run "bicep build" bash -c "set -e; find infra/bicep -name '*.bicep' -print0 | while IFS= read -r -d '' f; do az bicep build --file \"\$f\" --stdout >/dev/null; done"
 fi
 
 echo ""

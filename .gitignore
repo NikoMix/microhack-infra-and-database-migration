@@ -44,3 +44,7 @@ Thumbs.db
 # Build artifacts from agents
 agent-output/
 !agent-output/.gitkeep
+
+# Vale: ignore synced style packages (CI runs `vale sync`); keep committed config/vocab
+.vale/styles/*
+!.vale/styles/config/
