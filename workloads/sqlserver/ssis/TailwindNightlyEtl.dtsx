@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+                DTS:refId="Package"
+                DTS:CreationName="SSIS.Package.3"
+                DTS:ExecutableType="SSIS.Package.3"
+                DTS:ObjectName="TailwindNightlyEtl"
+                DTS:PackageType="5"
+                DTS:VersionBuild="1"
+                DTS:VersionGUID="{2F5C7A10-3E06-4F7E-9B24-68E6E7840001}"
+                DTS:LocaleID="1033">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Property DTS:Name="Description">Synthetic nightly ETL package for Tailwind Traders migration labs.</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[TailwindOLTP]"
+                           DTS:CreationName="OLEDB"
+                           DTS:ObjectName="TailwindOLTP">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=localhost;Initial Catalog=TailwindOLTP;Provider=SQLNCLI11.1;Integrated Security=SSPI;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable DTS:refId="Package\Execute SQL Task - Recalculate order totals"
+                    DTS:CreationName="Microsoft.ExecuteSQLTask"
+                    DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+                    DTS:ObjectName="Execute SQL Task - Recalculate order totals">
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask"
+                             SQLTask:Connection="{TailwindOLTP}"
+                             SQLTask:SqlStatementSource="EXEC dbo.usp_RunNightlyEtl;" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:refId="Package\Data Flow Task - Stage recent orders"
+                    DTS:CreationName="SSIS.Pipeline.3"
+                    DTS:ExecutableType="SSIS.Pipeline.3"
+                    DTS:ObjectName="Data Flow Task - Stage recent orders">
+      <DTS:ObjectData>
+        <pipeline version="1" xmlns="www.microsoft.com/sqlserver/dts/pipeline">
+          <components>
+            <component refId="Package\Data Flow Task - Stage recent orders\OLE DB Source"
+                       componentClassID="DTSAdapter.OleDbSource"
+                       name="OLE DB Source - Recent Orders">
+              <properties>
+                <property name="SqlCommand">SELECT OrderId, CustomerId, OrderDate, OrderTotal FROM dbo.Orders WHERE OrderDate &gt;= DATEADD(day, -1, SYSUTCDATETIME());</property>
+              </properties>
+            </component>
+            <component refId="Package\Data Flow Task - Stage recent orders\Row Count"
+                       componentClassID="DTSTransform.RowCount"
+                       name="Row Count - Recent Orders" />
+          </components>
+          <paths />
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints />
+</DTS:Executable>
