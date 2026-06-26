@@ -1,0 +1,87 @@
+{
+  "assessmentName": "Tailwind Traders Module B Synthetic Assessment",
+  "generatedOn": "2026-06-26T00:00:00Z",
+  "currency": "USD",
+  "azureLocation": "westeurope",
+  "servers": [
+    {
+      "name": "tw-app-01",
+      "os": "Windows Server 2019",
+      "cores": 4,
+      "memoryGB": 16,
+      "diskGB": 256,
+      "cpuUtilizationPct": 42,
+      "memoryUtilizationPct": 55,
+      "role": "web",
+      "azureReadiness": "Ready",
+      "recommendedSize": "D4s_v5",
+      "monthlyCostUsd": 220,
+      "migrationStrategy": "Rehost"
+    },
+    {
+      "name": "tw-db-01",
+      "os": "Windows Server 2019",
+      "cores": 8,
+      "memoryGB": 32,
+      "diskGB": 1024,
+      "cpuUtilizationPct": 62,
+      "memoryUtilizationPct": 70,
+      "role": "sql",
+      "azureReadiness": "ReadyWithConditions",
+      "recommendedSize": "E8ds_v5",
+      "monthlyCostUsd": 640,
+      "migrationStrategy": "Replatform"
+    }
+  ],
+  "sqlInstances": [
+    {
+      "server": "tw-db-01",
+      "instance": "MSSQLSERVER",
+      "version": "SQL Server 2016",
+      "databases": [
+        {
+          "name": "TailwindOLTP",
+          "sizeGB": 180,
+          "compatLevel": 130,
+          "azureSqlDbReadiness": "ReadyWithConditions",
+          "azureSqlMiReadiness": "Ready",
+          "blockers": ["cross-db-query to TailwindRef"],
+          "recommendedTarget": "Azure SQL Managed Instance"
+        },
+        {
+          "name": "TailwindRef",
+          "sizeGB": 25,
+          "compatLevel": 130,
+          "azureSqlDbReadiness": "Ready",
+          "azureSqlMiReadiness": "Ready",
+          "blockers": [],
+          "recommendedTarget": "Azure SQL Database"
+        }
+      ],
+      "ssisPackages": ["DailyInventoryLoad.dtsx"],
+      "agentJobs": ["NightlyIndexOptimize", "ETL_Inventory"]
+    }
+  ],
+  "ossDatabases": [
+    {
+      "engine": "PostgreSQL",
+      "version": "14",
+      "server": "tw-pg-01",
+      "database": "TailwindCatalog",
+      "sizeGB": 60,
+      "extensions": ["pgcrypto"],
+      "recommendedTarget": "Azure Database for PostgreSQL Flexible Server",
+      "monthlyCostUsd": 180
+    },
+    {
+      "engine": "MySQL",
+      "version": "8.0",
+      "server": "tw-my-01",
+      "database": "TailwindSessions",
+      "sizeGB": 35,
+      "extensions": [],
+      "recommendedTarget": "Azure Database for MySQL Flexible Server",
+      "monthlyCostUsd": 120
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling==1.30.1"]
+build-backend = "hatchling.build"
+
+[project]
+name = "migration-copilot"
+version = "0.1.0"
+description = "Train-the-Trainer Azure migration microhack AI + Copilot workstream"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Tailwind Traders MicroHack" }]
+dependencies = [
+  "agent-framework-core==1.9.0",
+  "agent-framework-openai==1.8.2",
+  "agent-framework-foundry==1.8.2",
+  "azure-identity==1.25.3",
+  "pydantic==2.13.4",
+  "python-dotenv==1.2.2",
+  "rich==15.0.0",
+  "typer==0.26.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff==0.15.20",
+  "mypy==2.1.0",
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0",
+  "pip-audit==2.10.1",
+]
+
+[project.scripts]
+mcopilot = "migration_copilot.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["migration_copilot"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["migration_copilot", "tests"]
+
+[tool.ruff.lint]
+select = ["A", "ANN", "ARG", "ASYNC", "B", "C4", "DTZ", "E", "F", "I", "N", "PERF", "PTH", "RET", "RUF", "SIM", "TRY", "UP", "W"]
+ignore = ["ANN401", "E501", "N815", "PERF401", "TRY003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ARG001", "ARG002"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_reexport = true
+exclude = [".venv"]
+
+[[tool.mypy.overrides]]
+module = ["agent_framework.*", "azure.identity.*", "dotenv.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q"
+asyncio_mode = "auto"
+testpaths = ["tests"]
