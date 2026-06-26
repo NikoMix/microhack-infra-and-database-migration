@@ -6,7 +6,7 @@ title: Microsoft Learn and product links
 - [Prepare Azure accounts for Azure Migrate](https://learn.microsoft.com/azure/migrate/prepare-azure-accounts)
 - [MSSQL extension for Visual Studio Code](https://learn.microsoft.com/sql/tools/visual-studio-code-extensions/mssql/mssql-extension-visual-studio-code)
 - [Azure Data Studio transition guidance](https://learn.microsoft.com/azure-data-studio/whats-happening-azure-data-studio)
-- [Bicep Azure Verified Modules](https://learn.microsoft.com/azure/azure-resource-manager/bicep/modules/avm-modules)
+- [Bicep Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/)
 - [Bicep deployment what-if](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deploy-what-if)
 - [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/azure/postgresql/flexible-server/overview)
 - [Azure Database for MySQL Flexible Server](https://learn.microsoft.com/azure/mysql/flexible-server/overview)
