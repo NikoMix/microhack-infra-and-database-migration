@@ -1,0 +1,58 @@
+---
+title: "Ch02 Landing Zone via Agentic IaC"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Convert migration intent into a hub-spoke landing zone plan.
+- Use Bicep Azure Verified Modules for network, identity, monitoring, and data platform foundations.
+- Run `what-if`, review changes, and deploy only after human approval.
+
+<Aside type="note" title="Module B mapping">
+Maps to B.1.1 by showing controlled landing-zone delivery and to B.4.1 by preserving IaC plans, reviews, and deployment evidence.
+</Aside>
+
+**Estimated time:** 60 minutes
+**Prerequisites:** Challenge 01 assessment outputs.
+
+<Steps>
+
+1. Ask the **IaC Architect** agent for a landing-zone plan grounded in the assessment.
+
+   ```bash
+   # Writes agent-output/ttmh/01-assessment.md and agent-output/ttmh/04-iac-plan.md
+   # --approve simulates the human approval gate before the IaC plan is finalized
+   mcopilot architect --assessment workloads/sample-data/assessment.json --project ttmh --approve
+   ```
+
+2. Review planned resources: `rg-ttmh-platform`, hub-spoke virtual networks, Key Vault, Log Analytics, private endpoints, Defender settings, and data service subnets.
+3. Preview the Bicep deployment.
+
+   ```bash
+   az group create --name rg-ttmh-platform --location swedencentral
+   az deployment group what-if --resource-group rg-ttmh-platform --template-file infra/bicep/landing-zone/main.bicep --parameters environmentName=ttmh
+   ```
+
+4. After a trainer or peer approves the `what-if`, deploy.
+
+   ```bash
+   az deployment group create --resource-group rg-ttmh-platform --template-file infra/bicep/landing-zone/main.bicep --parameters environmentName=ttmh
+   ```
+
+</Steps>
+
+## Use the AI agent here
+
+Ask Copilot to compare the `what-if` output with the approved architecture and flag drift, missing private endpoints, or naming mismatches before deployment.
+
+## What good looks like
+
+- The approved plan names `rg-ttmh-*`, `sql-ttmh-*`, `psql-ttmh-*`, `mysql-ttmh-*`, and `adf-ttmh-*` targets.
+- `what-if` output is reviewed before the create command.
+- The deployment produces platform resources without deploying application cutover changes.
+
+## Cleanup note
+
+Leave the landing zone in place. If the deployment partially succeeds, rerun `what-if` and redeploy after fixing parameters rather than deleting shared resources.

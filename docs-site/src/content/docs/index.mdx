@@ -1,0 +1,45 @@
+---
+title: Migrate & Modernize to Azure — MicroHack
+description: Train-the-Trainer labs for Module B migration delivery.
+template: splash
+hero:
+  tagline: Learn the migration, then learn how to teach it.
+  image:
+    alt: Azure migration microhack
+    file: ../../assets/hero.svg
+  actions:
+    - text: Start prerequisites
+      link: /start-here/prerequisites/
+      icon: right-arrow
+      variant: primary
+    - text: Open the agenda
+      link: /trainer/agenda/
+      icon: document
+---
+
+import { Aside, Card } from '@astrojs/starlight/components';
+
+## What you will learn
+
+<Card title="One classroom day, three migration pillars" icon="rocket">
+Partner consultants migrate Tailwind Traders from a simulated datacenter to Azure IaaS, Azure SQL family targets, and open-source database PaaS services.
+</Card>
+
+- Run discovery, dependency review, assessment, and migration planning with Azure Migrate.
+- Use the MSSQL extension for Visual Studio Code and Azure SQL migration tooling to assess SQL Server and choose Azure SQL Database or Managed Instance.
+- Generate a landing zone from intent using Bicep Azure Verified Modules, Azure MCP context, GitHub Copilot agents, and human-approved `what-if` gates.
+- Rehost servers, enable Backup, Defender for Cloud, and Azure Arc evidence.
+- Modernize PostgreSQL and MySQL estates to Flexible Server.
+- Produce cutover, knowledge-transfer, hypercare, and Module B audit assets.
+
+## Audience
+
+This Train-the-Trainer course is for Microsoft partner consultants, architects, and trainers who must both complete the labs and confidently deliver them to customers or internal cohorts.
+
+<Aside type="note" title="Module B coverage">
+The day surfaces B.1.1 migration delivery capability in Challenges 01-05, B.2.1 ACR performance and B.2.2 customer diversity in Challenge 06 and the slides, B.3.1 certifications in the close, and B.4.1/B.4.2 evidence and onboarding assets in Challenge 06.
+</Aside>
+
+## Agenda at a glance
+
+Follow the [timed trainer agenda](/trainer/agenda/) and the seven ordered [challenges](/challenges/00-setup-source-estate/). The fictional customer is **Tailwind Traders**, exiting a datacenter with Windows/IIS/.NET, Linux/NGINX, SQL Server, PostgreSQL, and MySQL workloads.

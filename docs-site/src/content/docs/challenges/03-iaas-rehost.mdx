@@ -1,0 +1,48 @@
+---
+title: "Ch03 IaaS Rehost"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Replicate and test-migrate `vm-web` and `vm-app` using Azure Migrate server migration concepts.
+- Enable Azure Backup, Defender for Cloud, and Azure Arc evidence.
+- Practice explaining when rehost is a valid modernization step.
+
+<Aside type="note" title="Module B mapping">
+Maps to B.1.1 and B.2.1 by connecting migration execution, resiliency, security, and operational performance controls.
+</Aside>
+
+**Estimated time:** 65 minutes
+**Prerequisites:** Azure Migrate project and landing-zone networking.
+
+<Steps>
+
+1. In Azure Migrate, open **Migrate and Modernize** and configure replication for `vm-web` and `vm-app` to the target spoke network.
+2. Use **Test migration** before cutover. Validate web and application health in the isolated test subnet.
+3. Create or verify a Recovery Services vault and enable VM backup.
+
+   ```bash
+   az backup vault create --resource-group rg-ttmh-platform --name rsv-ttmh-core --location swedencentral
+   az backup vault backup-properties set --resource-group rg-ttmh-platform --name rsv-ttmh-core --backup-storage-redundancy LocallyRedundant
+   ```
+
+4. Enable Defender for Cloud plans selected by the trainer and capture secure score recommendations.
+5. For hybrid operations discussion, connect the simulated source or migrated servers to Azure Arc when instructed by the trainer.
+
+</Steps>
+
+## Use the AI agent here
+
+Ask Copilot to draft a rehost decision memo: why `vm-web` and `vm-app` move first, what controls compensate for limited code change, and which evidence supports Module B.
+
+## What good looks like
+
+- Test migration reaches the app endpoint without changing production DNS.
+- Recovery Services vault policy is associated with migrated VMs.
+- Defender for Cloud recommendations and Arc connection status are captured for evidence.
+
+## Cleanup note
+
+Stop test migrated VMs that are not needed. Do not complete final migration until Challenge 06 cutover instructions.
