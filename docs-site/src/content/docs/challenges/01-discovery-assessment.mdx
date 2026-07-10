@@ -1,0 +1,49 @@
+---
+title: "Ch01 Discovery & Assessment"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Create an Azure Migrate project and review discovered inventory.
+- Assess server readiness, right-sizing, dependencies, and cost signals.
+- Assess SQL Server with the MSSQL/Azure SQL migration extension flow.
+- Feed structured findings to the Engagement Copilot.
+
+<Aside type="note" title="Module B mapping">
+Maps to B.1.1 migration delivery capability by teaching repeatable discovery, assessment, and decision capture.
+</Aside>
+
+**Estimated time:** 55 minutes
+**Prerequisites:** Challenge 00 source estate.
+
+<Steps>
+
+1. In the Azure portal, open **Azure Migrate**, create project `am-ttmh-project` in `rg-ttmh-migrate`, and add **Discovery and assessment** plus **Migrate and Modernize** tools.
+2. Discover the source estate. For a classroom simulation, import the provided inventory or use the deployed appliance path chosen by the trainer.
+3. In **Assessments**, create an Azure VM assessment for `vm-web` and `vm-app`. Review Azure readiness, recommended size, monthly compute/storage estimate, and dependency visualization.
+4. In VS Code, install or open the **SQL Server (MSSQL)** extension. Connect to `vm-sql`, then use the Azure SQL migration assessment workflow exposed by the extension to evaluate `TailwindOLTP` and `TailwindRef` for Azure SQL targets.
+5. Save key blockers and target recommendations.
+
+   ```bash
+   # Writes agent-output/ttmh/01-assessment.md
+   mcopilot assess --assessment workloads/sample-data/assessment.json --project ttmh
+   ```
+
+</Steps>
+
+## Use the AI agent here
+
+Use **Engagement Copilot** to read `workloads/sample-data/assessment.json`, rank migration waves, and draft customer-facing risks. Ask it to call out the cross-database query blocker that pushes part of the SQL estate toward Managed Instance.
+
+## What good looks like
+
+- Azure Migrate shows discovered servers and at least one assessment.
+- `vm-web` and `vm-app` have right-sized Azure VM recommendations.
+- SQL findings distinguish Azure SQL Database candidates from Managed Instance blockers.
+- `agent-output/ttmh/01-assessment.md` includes risks, target choices, and next actions.
+
+## Cleanup note
+
+Keep the Azure Migrate project for audit evidence. Remove only failed duplicate imports or assessments created by mistake.

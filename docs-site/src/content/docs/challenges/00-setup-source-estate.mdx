@@ -1,0 +1,67 @@
+---
+title: "Ch00 Setup & Source Estate"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Confirm Azure, GitHub, devcontainer, MCP, and Copilot readiness.
+- Deploy the Tailwind Traders source estate that simulates on-premises servers.
+- Capture source inventory names for later assessment and migration.
+
+<Aside type="note" title="Module B mapping">
+Supports B.1.1 by proving the trainer can create a repeatable migration lab baseline before delivery starts.
+</Aside>
+
+**Estimated time:** 45 minutes
+**Prerequisites:** [Environment setup](/start-here/environment-setup/) complete.
+
+<Steps>
+
+1. Confirm the active subscription and region.
+
+   ```bash
+   az account show -o table
+   az configure --defaults location=swedencentral
+   ```
+
+2. Deploy or validate the simulated source estate from the repository root.
+
+   ```bash
+   az group create --name rg-ttmh-source --location swedencentral
+   az deployment group create --resource-group rg-ttmh-source --template-file infra/bicep/source-estate/main.bicep --parameters environmentName=ttmh
+   ```
+
+3. Record the canonical source hosts.
+
+   ```bash
+   az vm list -g rg-ttmh-source --query "[].{name:name,os:storageProfile.osDisk.osType}" -o table
+   ```
+
+4. Verify the app and database ports from the jumpbox or trainer machine.
+
+   ```bash
+   az vm list-ip-addresses -g rg-ttmh-source -o table
+   ```
+
+</Steps>
+
+## Use the AI agent here
+
+Ask Copilot to summarize the source estate and create a migration hypothesis. Then run:
+
+```bash
+# Reads the synthetic Azure Migrate export; writes agent-output/ttmh/01-assessment.md
+mcopilot assess --assessment workloads/sample-data/assessment.json --project ttmh
+```
+
+## What good looks like
+
+- `rg-ttmh-source` exists with `vm-web`, `vm-app`, `vm-sql`, `vm-pg`, and `vm-mysql`.
+- The SQL Server databases are `TailwindOLTP` and `TailwindRef`.
+- Copilot can read repository files and produce `agent-output/ttmh/01-assessment.md`.
+
+## Cleanup note
+
+Do not delete the source estate until Challenge 06. If a deployment fails, rerun only this resource group deployment or ask the trainer for a reset snapshot.

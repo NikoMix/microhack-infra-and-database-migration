@@ -1,0 +1,55 @@
+---
+title: "Ch06 Cutover, Audit Evidence & Hypercare"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Build a T-14, T-0, and T+14 cutover and hypercare plan.
+- Package B.4.1 audit evidence and B.4.2 onboarding assets.
+- Close the Train-the-Trainer loop with teach-back and recovery patterns.
+
+<Aside type="note" title="Module B mapping">
+Directly maps to B.2.1, B.2.2, B.4.1, and B.4.2. It also reinforces B.3.1 by linking lab skills to AZ-104, AZ-305, DP-300, and AZ-800/801 readiness.
+</Aside>
+
+**Estimated time:** 50 minutes
+**Prerequisites:** Challenge 01-05 outputs and trainer-provided evidence samples.
+
+<Steps>
+
+1. Generate the cutover runbook.
+
+   ```bash
+   # Writes agent-output/ttmh/02-architecture.md, 05-runbook.md, and 06-evidence-index.md
+   mcopilot runbook --assessment workloads/sample-data/assessment.json --project ttmh
+   ```
+
+2. Include freeze windows, replication health, DNS, rollback criteria, data validation, security checks, communications, and business sign-off.
+3. Generate the evidence index.
+
+   ```bash
+   # Refreshes agent-output/ttmh/06-evidence-index.md
+   mcopilot evidence --assessment workloads/sample-data/assessment.json --project ttmh
+   ```
+
+4. Map evidence to Module B controls: assessments, architecture decisions, `what-if` approval, migration results, Backup, Defender, Arc, KT assets, and hypercare metrics.
+5. Run a 5-minute teach-back in pairs. One attendee explains the customer value; the other explains how to facilitate the lab.
+
+</Steps>
+
+## Use the AI agent here
+
+Ask Copilot to turn raw outputs into customer-ready artifacts: `01-assessment.md`, `02-architecture.md`, `03-cost-estimate.md`, `04-iac-plan.md`, `05-runbook.md`, and `06-evidence-index.md`.
+
+## What good looks like
+
+- Runbook has owner, time, validation, rollback, and communication columns.
+- Evidence index references every required artifact and its control mapping.
+- Hypercare plan defines daily checks, issue triage, and success metrics.
+- Teach-back feedback improves the next delivery.
+
+## Cleanup note
+
+After the trainer approves evidence, run the teardown process described in [Cost and teardown](/trainer/cost-and-teardown/). Do not delete shared MI or IR resources unless the trainer owns them.

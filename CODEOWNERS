@@ -1,0 +1,10 @@
+# Default owner for everything in the repo
+* @NikoMix
+
+# Workstream ownership hints
+/docs-site/   @NikoMix
+/slides/      @NikoMix
+/infra/       @NikoMix
+/src/         @NikoMix
+/workloads/   @NikoMix
+/.github/     @NikoMix

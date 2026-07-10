@@ -1,0 +1,19 @@
+# gitleaks configuration — extends the default ruleset
+# https://github.com/gitleaks/gitleaks
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted paths and placeholder values for training content"
+paths = [
+  '''(.*?)(jpg|jpeg|png|gif|pdf|pptx|docx|xlsx)$''',
+  '''package-lock\.json$''',
+  '''\.vale/styles/.*''',
+]
+# Documentation placeholders that look like secrets but are not
+regexes = [
+  '''<your-[a-z-]+>''',
+  '''00000000-0000-0000-0000-000000000000''',
+  '''YOUR_[A-Z_]+''',
+  '''xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx''',
+]

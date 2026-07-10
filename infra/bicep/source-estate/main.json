@@ -1,0 +1,463 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.44.1.10279",
+      "templateHash": "13343083221364000914"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string",
+      "defaultValue": "ttmh",
+      "metadata": {
+        "description": "Canonical short prefix used by all microhack workstreams."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all source-estate resources."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Local administrator username for all lab VMs."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Local administrator password for Windows and Linux lab VMs. Use Key Vault references or secure CLI parameters."
+      }
+    },
+    "adminSourceAddressPrefix": {
+      "type": "string",
+      "defaultValue": "Internet",
+      "metadata": {
+        "description": "CIDR allowed for SSH/RDP/HTTP lab access. Set to your public IP /32 for safer delivery."
+      }
+    },
+    "workloadRawBaseUrl": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/<owner>/<repo>/<branch>",
+      "metadata": {
+        "description": "Raw content base URL for this repo/branch, without trailing slash. Workload installers are downloaded from workloads/sqlserver/install.ps1, workloads/postgresql/install.sh, and workloads/mysql/install.sh."
+      }
+    },
+    "autoShutdownTime": {
+      "type": "string",
+      "defaultValue": "1900",
+      "metadata": {
+        "description": "Daily VM auto-shutdown time in HHmm format."
+      }
+    },
+    "autoShutdownTimeZoneId": {
+      "type": "string",
+      "defaultValue": "UTC",
+      "metadata": {
+        "description": "Time zone ID for DevTest Labs auto-shutdown schedules."
+      }
+    }
+  },
+  "variables": {
+    "tags": {
+      "env": "microhack",
+      "workload": "tailwind-migration",
+      "tier": "source-estate"
+    },
+    "vnetName": "[format('vnet-{0}-source', parameters('prefix'))]",
+    "subnetName": "snet-source",
+    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]",
+    "vmDefinitions": [
+      {
+        "name": "vm-web",
+        "os": "windows",
+        "size": "Standard_B2s",
+        "privateIp": "10.30.1.10",
+        "image": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2022-datacenter-g2",
+          "version": "latest"
+        }
+      },
+      {
+        "name": "vm-app",
+        "os": "linux",
+        "size": "Standard_B2s",
+        "privateIp": "10.30.1.11",
+        "image": {
+          "publisher": "Canonical",
+          "offer": "0001-com-ubuntu-server-jammy",
+          "sku": "22_04-lts-gen2",
+          "version": "latest"
+        }
+      },
+      {
+        "name": "vm-sql",
+        "os": "windows",
+        "size": "Standard_B2ms",
+        "privateIp": "10.30.1.12",
+        "image": {
+          "publisher": "MicrosoftSQLServer",
+          "offer": "sql2019-ws2022",
+          "sku": "sqldev-gen2",
+          "version": "latest"
+        }
+      },
+      {
+        "name": "vm-pg",
+        "os": "linux",
+        "size": "Standard_B2s",
+        "privateIp": "10.30.1.13",
+        "image": {
+          "publisher": "Canonical",
+          "offer": "0001-com-ubuntu-server-jammy",
+          "sku": "22_04-lts-gen2",
+          "version": "latest"
+        }
+      },
+      {
+        "name": "vm-mysql",
+        "os": "linux",
+        "size": "Standard_B2s",
+        "privateIp": "10.30.1.14",
+        "image": {
+          "publisher": "Canonical",
+          "offer": "0001-com-ubuntu-server-jammy",
+          "sku": "22_04-lts-gen2",
+          "version": "latest"
+        }
+      }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2025-01-01",
+      "name": "[format('nsg-{0}-source', parameters('prefix'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowRdpFromAdmin",
+            "properties": {
+              "priority": 100,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "[parameters('adminSourceAddressPrefix')]",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "AllowSshFromAdmin",
+            "properties": {
+              "priority": 110,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[parameters('adminSourceAddressPrefix')]",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "AllowHttpFromAdmin",
+            "properties": {
+              "priority": 120,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRanges": [
+                "80",
+                "8080"
+              ],
+              "sourceAddressPrefix": "[parameters('adminSourceAddressPrefix')]",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "AllowVnetInbound",
+            "properties": {
+              "priority": 130,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2025-01-01",
+      "name": "[variables('vnetName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.30.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "10.30.1.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-source', parameters('prefix')))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-source', parameters('prefix')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "publicIps",
+        "count": "[length(variables('vmDefinitions'))]"
+      },
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2025-01-01",
+      "name": "[format('pip-{0}', variables('vmDefinitions')[copyIndex()].name)]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "copy": {
+        "name": "nics",
+        "count": "[length(variables('vmDefinitions'))]"
+      },
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2025-01-01",
+      "name": "[format('nic-{0}', variables('vmDefinitions')[copyIndex()].name)]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAddress": "[variables('vmDefinitions')[copyIndex()].privateIp]",
+              "privateIPAllocationMethod": "Static",
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-{0}', variables('vmDefinitions')[copyIndex()].name))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-{0}', variables('vmDefinitions')[copyIndex()].name))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "vms",
+        "count": "[length(variables('vmDefinitions'))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-11-01",
+      "name": "[variables('vmDefinitions')[copyIndex()].name]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmDefinitions')[copyIndex()].size]"
+        },
+        "osProfile": "[union(createObject('computerName', variables('vmDefinitions')[copyIndex()].name, 'adminUsername', parameters('adminUsername'), 'adminPassword', parameters('adminPassword')), if(equals(variables('vmDefinitions')[copyIndex()].os, 'linux'), createObject('linuxConfiguration', createObject('disablePasswordAuthentication', false(), 'provisionVMAgent', true())), createObject('windowsConfiguration', createObject('provisionVMAgent', true(), 'enableAutomaticUpdates', true(), 'patchSettings', createObject('patchMode', 'AutomaticByOS')))))]",
+        "storageProfile": {
+          "imageReference": "[variables('vmDefinitions')[copyIndex()].image]",
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', variables('vmDefinitions')[copyIndex()].name))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', variables('vmDefinitions')[copyIndex()].name))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2024-11-01",
+      "name": "vm-web/bootstrap-iis",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "commandToExecute": "powershell -ExecutionPolicy Bypass -Command \"Install-WindowsFeature Web-Server,Web-Asp-Net45 -IncludeManagementTools; Set-Content -Path C:\\inetpub\\wwwroot\\index.html -Value TailwindTradersWebSource\""
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2024-11-01",
+      "name": "vm-sql/bootstrap-sql-workload",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[format('{0}/workloads/sqlserver/install.ps1', parameters('workloadRawBaseUrl'))]"
+          ],
+          "commandToExecute": "powershell -ExecutionPolicy Bypass -File install.ps1"
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2024-11-01",
+      "name": "vm-app/bootstrap-node-nginx",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "commandToExecute": "bash -c \"set -e; apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y nginx nodejs npm; mkdir -p /opt/tailwind-api; echo Y29uc3QgaHR0cD1yZXF1aXJlKCJodHRwIik7Cmh0dHAuY3JlYXRlU2VydmVyKChyZXEscmVzKT0+e3Jlcy53cml0ZUhlYWQoMjAwLHsiQ29udGVudC1UeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9KTtyZXMuZW5kKEpTT04uc3RyaW5naWZ5KHtzZXJ2aWNlOiJUYWlsd2luZCBUcmFkZXJzIE5vZGUgQVBJIix2bToidm0tYXBwIn0pKTt9KS5saXN0ZW4oODA4MCwiMC4wLjAuMCIpOwo= | base64 -d > /opt/tailwind-api/server.js; echo W1VuaXRdCkRlc2NyaXB0aW9uPVRhaWx3aW5kIFRyYWRlcnMgZGVtbyBOb2RlIEFQSQpBZnRlcj1uZXR3b3JrLnRhcmdldApbU2VydmljZV0KRXhlY1N0YXJ0PS91c3IvYmluL25vZGUgL29wdC90YWlsd2luZC1hcGkvc2VydmVyLmpzClJlc3RhcnQ9YWx3YXlzCltJbnN0YWxsXQpXYW50ZWRCeT1tdWx0aS11c2VyLnRhcmdldAo= | base64 -d > /etc/systemd/system/tailwind-api.service; systemctl daemon-reload; systemctl enable --now tailwind-api; systemctl enable --now nginx\""
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2024-11-01",
+      "name": "vm-pg/bootstrap-postgresql-workload",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[format('{0}/workloads/postgresql/install.sh', parameters('workloadRawBaseUrl'))]"
+          ],
+          "commandToExecute": "bash install.sh"
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2024-11-01",
+      "name": "vm-mysql/bootstrap-mysql-workload",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[format('{0}/workloads/mysql/install.sh', parameters('workloadRawBaseUrl'))]"
+          ],
+          "commandToExecute": "bash install.sh"
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    },
+    {
+      "copy": {
+        "name": "autoShutdown",
+        "count": "[length(variables('vmDefinitions'))]"
+      },
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "name": "[format('shutdown-computevm-{0}', variables('vmDefinitions')[copyIndex()].name)]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "status": "Enabled",
+        "taskType": "ComputeVmShutdownTask",
+        "dailyRecurrence": {
+          "time": "[parameters('autoShutdownTime')]"
+        },
+        "timeZoneId": "[parameters('autoShutdownTimeZoneId')]",
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmDefinitions')[copyIndex()].name)]",
+        "notificationSettings": {
+          "status": "Disabled"
+        }
+      },
+      "dependsOn": [
+        "vms"
+      ]
+    }
+  ],
+  "outputs": {
+    "sourceVnetResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+    },
+    "vmNames": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('vmDefinitions'))]",
+        "input": "[variables('vmDefinitions')[copyIndex()].name]"
+      }
+    }
+  }
+}

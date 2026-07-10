@@ -1,0 +1,65 @@
+---
+title: "Ch05 OSS DB PaaS"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Migrate PostgreSQL `TailwindCatalog` to Azure Database for PostgreSQL Flexible Server.
+- Migrate MySQL `TailwindSessions` to Azure Database for MySQL Flexible Server.
+- Validate connectivity, backup, monitoring, and private access decisions.
+
+<Aside type="note" title="Module B mapping">
+Maps to B.1.1 and B.2.2 by showing repeatable delivery across open-source data platforms and diverse customer workloads.
+</Aside>
+
+**Estimated time:** 55 minutes
+**Prerequisites:** Landing-zone data subnet and target Flexible Servers.
+
+<Steps>
+
+1. Confirm target resources exist.
+
+   ```bash
+   az postgres flexible-server list -g rg-ttmh-data -o table
+   az mysql flexible-server list -g rg-ttmh-data -o table
+   ```
+
+2. Export and restore PostgreSQL using the path selected by the trainer. For an offline classroom path, use `pg_dump` and `pg_restore` against `psql-ttmh-*`.
+
+   ```bash
+   pg_dump --host vm-pg --dbname TailwindCatalog --format custom --file TailwindCatalog.dump
+   pg_restore --host psql-ttmh-demo.postgres.database.azure.com --dbname TailwindCatalog TailwindCatalog.dump
+   ```
+
+3. Export and restore MySQL using `mysqldump` or the trainer-provided migration task.
+
+   ```bash
+   mysqldump --host vm-mysql TailwindSessions > TailwindSessions.sql
+   mysql --host mysql-ttmh-demo.mysql.database.azure.com TailwindSessions < TailwindSessions.sql
+   ```
+
+4. Validate counts and application connection strings. Store secrets in Key Vault rather than in scripts.
+
+   ```sql
+   SELECT COUNT(*) FROM products;
+   SELECT COUNT(*) FROM sessions;
+   ```
+
+</Steps>
+
+## Use the AI agent here
+
+Ask Copilot to compare PostgreSQL and MySQL target settings: compute tier, storage, backup retention, high availability, firewall/private networking, and monitoring metrics.
+
+## What good looks like
+
+- `psql-ttmh-*` contains `TailwindCatalog` data.
+- `mysql-ttmh-*` contains `TailwindSessions` data.
+- Connection strings are stored or referenced through Key Vault.
+- Backup and monitoring settings are documented.
+
+## Cleanup note
+
+Delete local dump files after validation if they contain customer-like data. Keep Azure targets until Challenge 06 evidence is complete.

@@ -1,0 +1,56 @@
+---
+title: "Ch04 Azure SQL Family"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Objectives
+
+- Migrate the compatible SQL database to Azure SQL Database.
+- Explain why cross-database dependencies can drive a SQL Managed Instance choice.
+- Demonstrate SSIS to Azure-SSIS IR and SQL Agent jobs to Elastic Jobs or MI Agent patterns.
+
+<Aside type="note" title="Module B mapping">
+Maps to B.1.1 through database migration execution and B.2.1 through performance, compatibility, and operational target selection.
+</Aside>
+
+**Estimated time:** 75 minutes
+**Prerequisites:** SQL assessment, target SQL resources, and trainer-provided MI or demo endpoint.
+
+<Steps>
+
+1. In the MSSQL extension for VS Code, connect to `vm-sql` and the target `sql-ttmh-*` server.
+2. Use the Azure SQL migration assessment and migration workflow to move the compatible database to Azure SQL Database. Keep the generated assessment and migration report.
+3. Run validation queries on the target.
+
+   ```sql
+   SELECT DB_NAME() AS database_name;
+   SELECT COUNT(*) AS customer_count FROM dbo.Customers;
+   ```
+
+4. Run the Schema Converter agent for the cross-database blocker.
+
+   ```bash
+   # Writes agent-output/ttmh/03-cost-estimate.md with the schema-conversion decisions
+   mcopilot convert --assessment workloads/sample-data/assessment.json --project ttmh
+   ```
+
+5. Discuss the `TailwindOLTP` to `TailwindRef` cross-database query and why the trainer uses a pre-provisioned `sqlmi-ttmh-*` demonstration.
+6. In Azure Data Factory `adf-ttmh-*`, review the Azure-SSIS Integration Runtime pattern for the two SSIS packages. Start the IR only during the demo window.
+7. Map SQL Server Agent jobs either to Azure SQL Elastic Jobs for Azure SQL Database scenarios or to SQL Managed Instance Agent where MI is selected.
+
+</Steps>
+
+## Use the AI agent here
+
+Ask **Schema Converter** to produce a blocker table with feature, source object, Azure SQL Database impact, and recommended target. Store final decisions in `agent-output/ttmh/03-cost-estimate.md`.
+
+## What good looks like
+
+- One database is accessible on `sql-ttmh-*` and query validation succeeds.
+- The cross-database dependency is documented as a Managed Instance candidate.
+- SSIS and Agent job modernization options are tied to business impact, not just feature parity.
+
+## Cleanup note
+
+Stop Azure-SSIS IR after the demonstration. Keep reports and target databases until the final evidence package is generated.

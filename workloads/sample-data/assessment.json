@@ -1,0 +1,138 @@
+{
+  "assessmentName": "TailwindTraders-DC-Exit",
+  "generatedOn": "2026-06-26T01:25:55+02:00",
+  "currency": "USD",
+  "azureLocation": "swedencentral",
+  "servers": [
+    {
+      "name": "vm-web",
+      "os": "Windows Server 2022 Datacenter",
+      "cores": 4,
+      "memoryGB": 16,
+      "diskGB": 256,
+      "cpuUtilizationPct": 35,
+      "memoryUtilizationPct": 60,
+      "role": "IIS / .NET storefront and public web tier",
+      "azureReadiness": "Ready",
+      "recommendedSize": "Standard_D4s_v5",
+      "monthlyCostUsd": 180,
+      "migrationStrategy": "Rehost"
+    },
+    {
+      "name": "vm-app",
+      "os": "Ubuntu Server 22.04 LTS with NGINX and Node.js",
+      "cores": 8,
+      "memoryGB": 32,
+      "diskGB": 384,
+      "cpuUtilizationPct": 48,
+      "memoryUtilizationPct": 68,
+      "role": "NGINX / Node.js retail order API and integration services",
+      "azureReadiness": "Ready",
+      "recommendedSize": "Standard_D8s_v5",
+      "monthlyCostUsd": 360,
+      "migrationStrategy": "Rehost"
+    },
+    {
+      "name": "vm-sql",
+      "os": "Windows Server 2019 Datacenter with SQL Server 2019 Developer",
+      "cores": 8,
+      "memoryGB": 64,
+      "diskGB": 1024,
+      "cpuUtilizationPct": 42,
+      "memoryUtilizationPct": 72,
+      "role": "SQL Server OLTP, reference data, SSIS, and SQL Agent jobs",
+      "azureReadiness": "ReadyWithConditions",
+      "recommendedSize": "Standard_E8ds_v5",
+      "monthlyCostUsd": 780,
+      "migrationStrategy": "Replatform"
+    },
+    {
+      "name": "vm-pg",
+      "os": "Ubuntu Server 22.04 LTS with PostgreSQL 14",
+      "cores": 4,
+      "memoryGB": 32,
+      "diskGB": 512,
+      "cpuUtilizationPct": 38,
+      "memoryUtilizationPct": 58,
+      "role": "Product catalog PostgreSQL database",
+      "azureReadiness": "ReadyWithConditions",
+      "recommendedSize": "Standard_D4ds_v5",
+      "monthlyCostUsd": 260,
+      "migrationStrategy": "Replatform"
+    },
+    {
+      "name": "vm-mysql",
+      "os": "Ubuntu Server 22.04 LTS with MySQL 8.0",
+      "cores": 4,
+      "memoryGB": 16,
+      "diskGB": 384,
+      "cpuUtilizationPct": 31,
+      "memoryUtilizationPct": 54,
+      "role": "Web sessions, clickstream events, and carts",
+      "azureReadiness": "Ready",
+      "recommendedSize": "Standard_D4ds_v5",
+      "monthlyCostUsd": 210,
+      "migrationStrategy": "Replatform"
+    }
+  ],
+  "sqlInstances": [
+    {
+      "server": "vm-sql",
+      "instance": "MSSQLSERVER",
+      "version": "SQL Server 2019 Developer",
+      "databases": [
+        {
+          "name": "TailwindOLTP",
+          "sizeGB": 45,
+          "compatLevel": 150,
+          "azureSqlDbReadiness": "ReadyWithConditions",
+          "azureSqlMiReadiness": "Ready",
+          "blockers": [
+            "Cross-database query to TailwindRef"
+          ],
+          "recommendedTarget": "Azure SQL Managed Instance"
+        },
+        {
+          "name": "TailwindRef",
+          "sizeGB": 1,
+          "compatLevel": 150,
+          "azureSqlDbReadiness": "Ready",
+          "azureSqlMiReadiness": "Ready",
+          "blockers": [],
+          "recommendedTarget": "Azure SQL Database"
+        }
+      ],
+      "ssisPackages": [
+        "TailwindNightlyEtl.dtsx",
+        "TailwindStagingLoad.dtsx"
+      ],
+      "agentJobs": [
+        "IndexMaintenanceNightly",
+        "TriggerNightlyEtl"
+      ]
+    }
+  ],
+  "ossDatabases": [
+    {
+      "engine": "PostgreSQL",
+      "version": "14",
+      "server": "vm-pg",
+      "database": "TailwindCatalog",
+      "sizeGB": 22,
+      "extensions": [
+        "pg_trgm"
+      ],
+      "recommendedTarget": "Azure Database for PostgreSQL Flexible Server",
+      "monthlyCostUsd": 140
+    },
+    {
+      "engine": "MySQL",
+      "version": "8.0",
+      "server": "vm-mysql",
+      "database": "TailwindSessions",
+      "sizeGB": 12,
+      "recommendedTarget": "Azure Database for MySQL Flexible Server",
+      "monthlyCostUsd": 95
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+# Node
+node_modules/
+dist/
+.astro/
+.output/
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+
+# Azure / IaC
+.azure/
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfplan
+*.azhack/
+
+# Secrets & local config (never commit)
+*.pem
+*.key
+*.pfx
+local.settings.json
+azd.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Build artifacts from agents
+agent-output/
+!agent-output/.gitkeep
+
+# Vale: ignore synced style packages (CI runs `vale sync`); keep committed config/vocab
+.vale/styles/*
+!.vale/styles/config/
