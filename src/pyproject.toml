@@ -16,7 +16,7 @@ dependencies = [
   "agent-framework-foundry==1.8.2",
   "azure-identity==1.25.3",
   "pydantic==2.13.4",
-  "python-dotenv==1.2.2",
+  "python-dotenv==1.2.3",
   "rich==15.0.0",
   "typer==0.26.7",
 ]
