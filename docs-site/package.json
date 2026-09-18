@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Train-the-Trainer microhack for the Infrastructure and Database Migration to Microsoft Azure Advanced Specialization (Module B).",
   "scripts": { "dev": "astro dev", "build": "astro build", "preview": "astro preview", "check": "astro check" },
-  "dependencies": { "@astrojs/starlight": "^0.41.1", "astro": "^7.0.3" },
+  "dependencies": { "@astrojs/starlight": "^0.41.1", "astro": "^7.3.3" },
   "devDependencies": { "@astrojs/check": "^0.9.9", "typescript": "^6.0.3" },
   "overrides": {
     "yaml": "^2.9.0"
